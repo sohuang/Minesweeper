@@ -58,7 +58,7 @@ public void displayWinningMessage() {
 public class MSButton {
     private int r, c;
     private float x, y, width, height;
-    private boolean clicked, marked;
+    private boolean clicked, marked, revealed;
     private String label;
     
     public MSButton ( int rr, int cc ) {
@@ -69,7 +69,7 @@ public class MSButton {
         x = c*width;
         y = r*height;
         label = "";
-        marked = clicked = false;
+        marked = clicked;
         Interactive.add( this ); // register it with the manager
     }
 
@@ -83,32 +83,39 @@ public class MSButton {
     // called by manager
     
     public void mousePressed() {
-        clicked = true;
-        if (keyPressed) {
-            marked = !marked;
-        } else if (bombs.contains(this)) {
-            displayLosingMessage();
-        } else if (countBombs(r, c) > 0) {
-            label = "" + countBombs(r, c);
-        } else {
-            for (int i = r - 1; i <= r + 1; i++) {
-                for (int j = c - 1; j <= c + 1; j++) {
-                    if (isValid(i, j) && !buttons[i][j].isClicked()) {
-                        buttons[i][j].mousePressed();
+        if (mouseButton == LEFT) {
+            if (clicked == false) {
+                clicked = !clicked;
+            }
+            if (bombs.contains(this)) {
+                displayLosingMessage();
+            } else if (countBombs(r, c) > 0) {
+                label = "" + countBombs(r, c);
+            } else {
+                for (int i = r - 1; i <= r + 1; i++) {
+                    for (int j = c - 1; j <= c + 1; j++) {
+                        if (isValid(i, j) && !buttons[i][j].isClicked()) {
+                            buttons[i][j].mousePressed();
+                        }
                     }
                 }
             }
         }
+
+        if (mouseButton == RIGHT && clicked == false) {
+            marked = !marked;
+        }
     }
 
-    public void draw () {    
-        if (marked)
+    public void draw () {
+        if (marked) {
             fill(0);
-        else if(clicked && bombs.contains(this)) 
+        }
+        else if(clicked && bombs.contains(this))
             fill(255, 0, 0);
         else if(clicked)
             fill(200);
-        else 
+        else
             fill(100);
 
         rect(x, y, width, height);
