@@ -5,10 +5,12 @@ private int NUM_COLS = 20;
 private MSButton[][] buttons; //2d array of minesweeper buttons
 private int NUM_BOMBS = 100;
 private ArrayList <MSButton> bombs; //ArrayList of just the minesweeper buttons that are mined
+private boolean isGameEnded;
 
 void setup () {
     size(400, 400);
     textAlign(CENTER,CENTER);
+    isGameEnded = false;
     
     // make the manager
     Interactive.make( this );
@@ -25,6 +27,7 @@ void setup () {
     
     setBombs();
 }
+
 public void setBombs() {
     for (int i = 0; i < NUM_BOMBS; i++) {
         int r = (int)(Math.random() * NUM_ROWS);
@@ -36,29 +39,52 @@ public void setBombs() {
 }
 
 public void draw () {
-    background( 0 );
+    background(0);
     if(isWon()) {
         displayWinningMessage();
     }
 }
 
 public boolean isWon() {
-    //your code here
+    int count = 0;
+    for (int i = 0; i < NUM_ROWS; i++) {
+        for (int j = 0; j < NUM_COLS; j++) {
+            if (buttons[i][j].isClicked()) {
+                count++;
+            }
+        }
+    }
+    if (count == NUM_ROWS * NUM_COLS - NUM_BOMBS || key == 'w') {
+        displayWinningMessage();
+        return true;
+    }
     return false;
 }
 
 public void displayLosingMessage() {
-    //your code here
+    for (MSButton b : bombs) {
+        b.setClicked(true);
+    }
+    isGameEnded = true;
 }
 
 public void displayWinningMessage() {
-    //your code here
+    for (int i = 0; i < NUM_ROWS; i++) {
+        for (int j = 0; j < NUM_COLS; j++) {
+            if (bombs.contains(buttons[i][j])) {
+                buttons[i][j].setClicked(true);
+            } else {
+                buttons[i][j].drawWin();
+            }
+        }
+    }
+    isGameEnded = true;
 }
 
 public class MSButton {
     private int r, c;
     private float x, y, width, height;
-    private boolean clicked, marked, revealed;
+    private boolean clicked, marked;
     private String label;
     
     public MSButton ( int rr, int cc ) {
@@ -83,44 +109,71 @@ public class MSButton {
     // called by manager
     
     public void mousePressed() {
-        if (mouseButton == LEFT) {
-            if (clicked == false) {
-                clicked = !clicked;
-            }
-            if (bombs.contains(this)) {
-                displayLosingMessage();
-            } else if (countBombs(r, c) > 0) {
-                label = "" + countBombs(r, c);
-            } else {
-                for (int i = r - 1; i <= r + 1; i++) {
-                    for (int j = c - 1; j <= c + 1; j++) {
-                        if (isValid(i, j) && !buttons[i][j].isClicked()) {
-                            buttons[i][j].mousePressed();
+        if (!isGameEnded) {
+            if (mouseButton == LEFT) {
+                if (clicked == false) {
+                    clicked = !clicked;
+                }
+                if (bombs.contains(this)) {
+                    displayLosingMessage();
+                } else if (countBombs(r, c) > 0) {
+                    label = "" + countBombs(r, c);
+                } else {
+                    for (int i = r - 1; i <= r + 1; i++) {
+                        for (int j = c - 1; j <= c + 1; j++) {
+                            if (isValid(i, j) && !buttons[i][j].isClicked()) {
+                                buttons[i][j].mousePressed();
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if (mouseButton == RIGHT && clicked == false) {
-            marked = !marked;
+            if (mouseButton == RIGHT && clicked == false) {
+                marked = !marked;
+            }
         }
     }
 
     public void draw () {
-        if (marked) {
-            fill(0);
+        if (isGameEnded && isWon()) {
+            drawWin();
+        } else {
+            if (marked) {
+                fill(0);
+            }
+            else if(clicked && bombs.contains(this))
+                fill(255, 0, 0);
+            else if(clicked)
+                fill(200);
+            else
+                fill(100);
         }
-        else if(clicked && bombs.contains(this))
-            fill(255, 0, 0);
-        else if(clicked)
-            fill(200);
-        else
-            fill(100);
 
         rect(x, y, width, height);
         fill(0);
         text(label, x+width/2, y+height/2);
+    }
+
+    public void drawWin() {
+        colorMode(HSB);
+        float h = map(r + c, 0, NUM_ROWS + NUM_COLS - 2, 0, 255);
+
+        if (bombs.contains(this)) {
+            if (frameCount % 30 < 10) {
+                fill(0, 0, 0);
+            } else {
+                fill(255, 255, 255);
+            }
+        } else {            
+            fill(h, 255, 255);
+        }
+        
+        colorMode(RGB);
+    }
+
+    public void drawLose() {
+
     }
 
     public void setLabel(String newLabel) {
@@ -133,7 +186,6 @@ public class MSButton {
 
     public int countBombs(int row, int col) {
         int numBombs = 0;
-
         for (int i = row - 1; i <= row + 1; i++) {
             for (int j = col - 1; j <= col + 1; j++) {
                 if (isValid(i, j)) {
@@ -143,7 +195,10 @@ public class MSButton {
                 }
             }
         }
-
         return numBombs;
+    }
+
+    public void setClicked(boolean what) {
+        clicked = what;
     }
 }
