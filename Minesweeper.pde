@@ -160,15 +160,13 @@ public class MSButton {
         float h = map(r + c, 0, NUM_ROWS + NUM_COLS - 2, 0, 255);
 
         if (bombs.contains(this)) {
-            if (frameCount % 30 < 10) {
-                fill(0, 0, 0);
-            } else {
-                fill(255, 255, 255);
-            }
+            float s = 0;
+            s += 0.05 * frameCount;
+            fill(h, map(noise(s), 0, 1, 0, 100), 255);
         } else {            
-            fill(h, 255, 255);
+            fill(h, 200, 255);
         }
-        
+
         colorMode(RGB);
     }
 
