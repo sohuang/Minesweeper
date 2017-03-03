@@ -44,8 +44,13 @@ public void draw () {
   if (isWon()) {
     displayWinningMessage();
   }
-  if (key == 'l') {
-    displayLosingMessage();
+  if (keyPressed) {
+    if (key == 'w') {
+      displayWinningMessage();
+    }
+    if (key == 'l') {
+      displayLosingMessage();
+    }
   }
 }
 
@@ -58,7 +63,7 @@ public boolean isWon() {
       }
     }
   }
-  if (count == NUM_ROWS * NUM_COLS - NUM_BOMBS || key == 'w') {
+  if (count == NUM_ROWS * NUM_COLS - NUM_BOMBS) {
     displayWinningMessage();
     return true;
   }
@@ -147,7 +152,7 @@ public class MSButton {
 
   public void draw () {
     if (isGameEnded) {
-      if (isWon()) {
+      if (isWon() || key == 'w') {
         drawWin();
       } else {
         drawLose();
@@ -184,8 +189,12 @@ public class MSButton {
     setLabel("");
     if (bombs.contains(this)) {
       fill(0, 225, 255);
+    } else if (clicked) {
+      fill(155, 150, 255);
     } else {
-      fill(0, 0, 100);
+      float s = 0;
+      s += 0.01 * frameCount;
+      fill(180, map(r, 0, NUM_ROWS + NUM_COLS, 10, 120), 255);
     }
   }
 
