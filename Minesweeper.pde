@@ -41,9 +41,10 @@ public void setBombs() {
 
 public void draw () {
   background(0);
-  if (isWon() || key == 'w') {
+  if (isWon()) {
     displayWinningMessage();
-  } else if (isGameEnded || key == 'l') {
+  }
+  if (key == 'l') {
     displayLosingMessage();
   }
 }
@@ -57,7 +58,7 @@ public boolean isWon() {
       }
     }
   }
-  if (count == NUM_ROWS * NUM_COLS - NUM_BOMBS) {
+  if (count == NUM_ROWS * NUM_COLS - NUM_BOMBS || key == 'w') {
     displayWinningMessage();
     return true;
   }
