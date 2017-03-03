@@ -62,8 +62,14 @@ public boolean isWon() {
 }
 
 public void displayLosingMessage() {
-    for (MSButton b : bombs) {
-        b.setClicked(true);
+    for (int i = 0; i < NUM_ROWS; i++) {
+        for (int j = 0; j < NUM_COLS; j++) {
+            if (bombs.contains(buttons[i][j])) {
+                buttons[i][j].setClicked(true);
+            } else {
+                buttons[i][j].drawLose();
+            }
+        }
     }
     isGameEnded = true;
 }
@@ -156,22 +162,21 @@ public class MSButton {
     }
 
     public void drawWin() {
+        setLabel("");
         colorMode(HSB);
         float h = map(r + c, 0, NUM_ROWS + NUM_COLS - 2, 0, 255);
-
         if (bombs.contains(this)) {
             float s = 0;
             s += 0.05 * frameCount;
-            fill(h, map(noise(s), 0, 1, 0, 100), 255);
+            fill(h, map(noise(s, r, c), 0, 1, 0, 100), 255);
         } else {            
             fill(h, 200, 255);
         }
-
         colorMode(RGB);
     }
 
     public void drawLose() {
-
+        setLabel("");
     }
 
     public void setLabel(String newLabel) {
